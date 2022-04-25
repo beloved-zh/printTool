@@ -10,6 +10,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import org.apache.commons.lang3.ObjectUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.io.ClassPathResource;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,16 +25,14 @@ class PrintToolApplicationTests {
     void contextLoads() throws IOException {
         String targetPdfPath = "D:\\download\\pdf临时文件\\" + System.currentTimeMillis() + ".pdf";
         Map<String, Object> params = new HashMap<>();
-        params.put("lotId", "100000000000");
-        params.put("lotIdT", "100000000000");
-        params.put("printDate", new Date());
-        params.put("customer", "张三");
-        params.put("custCode", 8888888);
-        params.put("deliveryTime", "2022-04-25");
-        params.put("image", "2022-04-25");
+        params.put("userName", "张三");
+        params.put("age", 22);
+        params.put("sex", "男");
+        params.put("birthday",  new Date());
+        params.put("photo", null);
+        params.put("code", null);
 
-        String templatePdfPath = "C:\\Users\\Beloved\\Desktop\\IC测试流程卡(FT).pdf";
-        File templatePdf = new File(templatePdfPath);
+        File templatePdf = new ClassPathResource("templates/测试模板.pdf").getFile();
 
         templateFill(templatePdf, targetPdfPath, params);
     }
@@ -46,8 +45,7 @@ class PrintToolApplicationTests {
 
         // 创建字体
 //        PdfFont font = PdfFontFactory.createFont("STSong-Light", "UniGB-UCS2-H");
-        PdfFont font = PdfFontFactory.createFont("./static/fonts/simhei.ttf");
-        pdf.addFont(font);
+        PdfFont font = PdfFontFactory.createFont("./static/fonts/msyh.ttc");
 
         // 获取 pdf 模板中的域值信息
         PdfAcroForm form = PdfAcroForm.getAcroForm(pdf, true);
@@ -58,17 +56,15 @@ class PrintToolApplicationTests {
             if (ObjectUtils.isEmpty(formField) || ObjectUtils.isEmpty(params.get(key))) {
                 continue;
             }
-            System.out.println(formField);
-            System.out.println(key);
-            System.out.println(params.get(key));
-            System.out.println("======================");
-
+            if (key == "userName") {
+                formField.setValue(params.get(key).toString()).setFont(font);
+            }
             // 填充文本域
             formField.setValue(params.get(key).toString());
         }
 
         // 设置文本不可编辑
-        form.flattenFields();
+//        form.flattenFields();
 
         pdf.close();
     }
