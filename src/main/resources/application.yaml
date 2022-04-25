@@ -1,0 +1,7 @@
+server:
+  port: 8888
+
+# 日志配置
+logging:
+  level:
+    com.beloved: debug
