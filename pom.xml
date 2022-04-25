@@ -17,8 +17,20 @@
         <java.version>1.8</java.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <itext7-core.version>7.2.2</itext7-core.version>
+        <google.zxing.version>3.4.1</google.zxing.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>${google.zxing.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>${google.zxing.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext7-core</artifactId>
