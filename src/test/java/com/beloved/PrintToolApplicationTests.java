@@ -117,8 +117,8 @@ class PrintToolApplicationTests {
                     File imageFile = (File)value;
                     formButtonField.setImage(imageFile.getPath());
                 } else {
-//                    formField.setValue(BarCodeUtils.getBarCodeWordsBase64(value.toString(), value.toString()));
-                    formField.setValue(BarCodeUtils.getBarCodeBase64(value.toString()));
+                    formField.setValue(BarCodeUtils.getBarCodeWordsBase64(value.toString(), value.toString()));
+//                    formField.setValue(BarCodeUtils.getBarCodeBase64(value.toString()));
                 }
                 continue;
             }

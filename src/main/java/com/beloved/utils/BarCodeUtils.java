@@ -26,16 +26,16 @@ import java.util.Map;
 public class BarCodeUtils {
 
     // 默认图片宽度
-    private static final int DEFAULT_PICTURE_WIDTH = 300;
+    private static final int DEFAULT_PICTURE_WIDTH = 200;
 
     // 默认图片高度
-    private static final int DEFAULT_PICTURE_HEIGHT = 200;
+    private static final int DEFAULT_PICTURE_HEIGHT = 150;
 
     // 默认条形码宽度
     private static final int DEFAULT_WIDTH = 200;
 
     // 默认条形码高度
-    private static final int DEFAULT_HEIGHT = 70;
+    private static final int DEFAULT_HEIGHT = 100;
 
     // 默认字体大小
     private static final int DEFAULT_FONT_SIZE = 15;
@@ -193,7 +193,7 @@ public class BarCodeUtils {
                 topLeftStr,
                 topRightStr,
                 DEFAULT_PICTURE_WIDTH,
-                DEFAULT_PICTURE_WIDTH,
+                DEFAULT_PICTURE_HEIGHT,
                 0,
                 0,
                 10,
@@ -274,7 +274,7 @@ public class BarCodeUtils {
                 topLeftStr,
                 topRightStr,
                 DEFAULT_PICTURE_WIDTH,
-                DEFAULT_PICTURE_WIDTH,
+                DEFAULT_PICTURE_HEIGHT,
                 0,
                 0,
                 10,
