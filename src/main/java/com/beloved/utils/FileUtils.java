@@ -1,6 +1,7 @@
 package com.beloved.utils;
 
 import java.io.*;
+import java.util.Base64;
 
 /**
  * @author beloved
@@ -8,25 +9,49 @@ import java.io.*;
 public class FileUtils {
 
     /**
-     * File转byte[]数组
+     * File 转 Base64
      *
      * @param fileFullPath
      * @return
      */
-    public static byte[] file2byte(String fileFullPath) {
-        if (fileFullPath == null || "".equals(fileFullPath)) {
-            return null;
-        }
-        return file2byte(new File(fileFullPath));
+    public static String fileToBase64(String fileFullPath) {
+        byte[] bytes = fileToByte(fileFullPath);
+        Base64.Encoder encoder  = Base64.getEncoder();
+        return encoder.encodeToString(bytes);
+    }
+
+    /**
+     * File 转 Base64
+     *
+     * @param file
+     * @return
+     */
+    public static String fileToBase64(File file) {
+        byte[] bytes = fileToByte(file);
+        Base64.Encoder encoder  = Base64.getEncoder();
+        return encoder.encodeToString(bytes);
     }
 
     /**
      * File转byte[]数组
      *
+     * @param fileFullPath
+     * @return
+     */
+    public static byte[] fileToByte(String fileFullPath) {
+        if (fileFullPath == null || "".equals(fileFullPath)) {
+            return null;
+        }
+        return fileToByte(new File(fileFullPath));
+    }
+
+    /**
+     * File 转 byte[]数组
+     *
      * @param file
      * @return
      */
-    public static byte[] file2byte(File file) {
+    public static byte[] fileToByte(File file) {
         if (file == null) {
             return null;
         }
@@ -65,7 +90,7 @@ public class FileUtils {
      * @param fileFullPath
      * @return
      */
-    public static File byte2file(byte[] bytes, String fileFullPath) {
+    public static File byteToFile(byte[] bytes, String fileFullPath) {
         if (bytes == null) {
             return null;
         }

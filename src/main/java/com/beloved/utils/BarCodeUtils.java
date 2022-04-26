@@ -1,159 +1,338 @@
 package com.beloved.utils;
 
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.Writer;
-import com.google.zxing.WriterException;
+import com.google.zxing.*;
+import com.google.zxing.client.j2se.BufferedImageLuminanceSource;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.oned.Code128Writer;
-import com.google.zxing.pdf417.PDF417Writer;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 
 /**
  * @author beloved
  */
 public class BarCodeUtils {
-    /**
-     * 默认图片宽度
-     */
+
+    // 默认图片宽度
     private static final int DEFAULT_PICTURE_WIDTH = 300;
 
-    /**
-     * 默认图片高度
-     */
+    // 默认图片高度
     private static final int DEFAULT_PICTURE_HEIGHT = 200;
 
-    /**
-     * 默认条形码宽度
-     */
-    private static final int DEFAULT_BAR_CODE_WIDTH = 200;
+    // 默认条形码宽度
+    private static final int DEFAULT_WIDTH = 200;
 
-    /**
-     * 默认条形码高度
-     */
-    private static final int DEFAULT_BAR_CODE_HEIGHT = 70;
+    // 默认条形码高度
+    private static final int DEFAULT_HEIGHT = 70;
 
-    /**
-     * 默认字体大小
-     */
+    // 默认字体大小
     private static final int DEFAULT_FONT_SIZE = 15;
 
-    /**
-     * 设置 条形码参数
-     */
-    private static final Map<EncodeHintType, Object> hints = new HashMap<>();
+    private static final String FORMAT = "png";
+    private static final String ENCODE = "UTF-8";
 
-    static {
-        hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+    /**
+     * 解析条形码
+     * @param imgPath  图片地址路径
+     *            注意：无法解析特殊字符
+     * @return         解析内容
+     * @throws IOException
+     * @throws NotFoundException
+     */
+    public static String decodeBarCode(String imgPath) throws IOException, NotFoundException {
+        BufferedImage image = ImageIO.read(new File(imgPath));
+
+        LuminanceSource source = new BufferedImageLuminanceSource(image);
+        BinaryBitmap bitmap = new BinaryBitmap(new HybridBinarizer(source));
+
+        Map<DecodeHintType, Object> hints = new Hashtable<>();
+        hints.put(DecodeHintType.CHARACTER_SET, ENCODE);
+
+        Result result = new MultiFormatReader().decode(bitmap, hints);
+
+        return result.getText();
     }
 
     /**
-     * 获取条形码图片
-     *
-     * @param codeValue 条形码内容
-     * @return 条形码图片
+     * 生成 默认宽高 Base64 条形码
+     * @param content 内容
+     * @return  Base64
+     * @throws WriterException
+     * @throws IOException
      */
-    public static BufferedImage getBarCodeImage(String codeValue) {
-        return getBarCodeImage(codeValue, DEFAULT_BAR_CODE_WIDTH, DEFAULT_BAR_CODE_HEIGHT);
+    public static String getBarCodeBase64(String content) throws WriterException, IOException {
+        return getBarCodeBase64(content, DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
 
     /**
-     * 获取条形码图片
-     *
-     * @param codeValue 条形码内容
-     * @param width     宽度
-     * @param height    高度
-     * @return 条形码图片
+     * 生成 Base64 条形码
+     * @param content 内容
+     * @param width   宽
+     * @param height    高
+     * @return    Base64
+     * @throws WriterException
+     * @throws IOException
      */
-    public static BufferedImage getBarCodeImage(String codeValue, int width, int height) {
-        // CODE_128是最常用的条形码格式
-        return getBarCodeImage(codeValue, width, height, BarcodeFormat.CODE_128);
+    public static String getBarCodeBase64(String content, int width, int height) throws WriterException, IOException {
+
+        BufferedImage bufferedImage = getBarCode(content, width, height);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, FORMAT, baos);
+
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
     }
 
     /**
-     * 获取条形码图片
-     *
-     * @param codeValue     条形码内容
-     * @param width         宽度
-     * @param height        高度
-     * @param barcodeFormat 条形码编码格式
-     * @return 条形码图片
+     * 生成默认宽高条形码
+     * @param content   内容
+     * @param imgPath   保存地址
+     * @throws WriterException
+     * @throws IOException
      */
-    public static BufferedImage getBarCodeImage(String codeValue, int width, int height, BarcodeFormat barcodeFormat) {
-        Writer writer;
-        switch (barcodeFormat) {
-            case CODE_128:
-                // 最常见的条形码，但是不支持中文
-                writer = new Code128Writer();
-                break;
-            case PDF_417:
-                // 支持中文的条形码格式
-                writer = new PDF417Writer();
-                break;
-            // 如果使用到其他格式，可以在这里添加
-            default:
-                writer = new Code128Writer();
+    public static void getBarCode(String content, String imgPath) throws WriterException, IOException {
+        getBarCode(content, DEFAULT_WIDTH, DEFAULT_HEIGHT, imgPath);
+    }
+
+    /**
+     * 生成条形码
+     * @param content   内容
+     * @param width     宽
+     * @param height    高
+     * @param imgPath   保存地址
+     * @throws WriterException
+     * @throws IOException
+     */
+    public static void getBarCode(String content, int width, int height, String imgPath) throws WriterException, IOException {
+        BufferedImage bufferedImage = getBarCode(content, width, height);
+
+        File saveFile = new File(imgPath);
+
+        // 是否有父级目录没有则创建
+        if(!saveFile.getParentFile().exists()){
+            saveFile.getParentFile().mkdirs();
         }
+
+        ImageIO.write(bufferedImage, FORMAT, saveFile);
+    }
+
+    /**
+     * 生成默认宽高条形码
+     * @param content   内容
+     */
+    private static BufferedImage getBarCode(String content) {
+        return getBarCode(content, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    /**
+     * 生成条形码
+     * @param content   内容
+     * @param width     宽
+     * @param height    高
+     */
+    private static BufferedImage getBarCode(String content, int width, int height) {
+        if (StringUtils.isEmpty(content)) {
+            return null;
+        }
+
+        // 设置参数
+        HashMap<EncodeHintType, Comparable> hints = new HashMap<>();
+        hints.put(EncodeHintType.CHARACTER_SET, ENCODE);
+        hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+        hints.put(EncodeHintType.MARGIN, 0);
+
+        Code128Writer writer = new Code128Writer();
 
         // 编码内容, 编码类型, 宽度, 高度, 设置参数
-        BitMatrix bitMatrix;
-        try {
-            bitMatrix = writer.encode(codeValue, barcodeFormat, width, height, hints);
-        } catch (WriterException e) {
-            throw new RuntimeException("条形码内容写入失败");
-        }
-        return MatrixToImageWriter.toBufferedImage(bitMatrix);
+        BitMatrix bitMatrix = writer.encode(content, BarcodeFormat.CODE_128, width, height, hints);
+
+        BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+        return bufferedImage;
     }
 
     /**
-     * 获取条形码
+     * 生成带文本内容 Base64  条形码
      *
-     * @param codeValue 条形码内容
-     * @param bottomStr 底部文字
-     * @return
+     * @param codeValue       条形码内容
+     * @param bottomStr       底部文字
+     * @return Base64
      */
-    public static BufferedImage getBarCodeWithWords(String codeValue, String bottomStr) {
-        return getBarCodeWithWords(codeValue, bottomStr, "", "");
+    public static String getBarCodeWordsBase64(String codeValue, String bottomStr) throws IOException {
+        return getBarCodeWordsBase64(codeValue, bottomStr, "", "");
     }
 
     /**
-     * 获取条形码
+     * 生成带文本内容 Base64  条形码
      *
-     * @param codeValue   条形码内容
-     * @param bottomStr   底部文字
-     * @param topLeftStr  左上角文字
-     * @param topRightStr 右上角文字
-     * @return
+     * @param codeValue       条形码内容
+     * @param bottomStr       底部文字
+     * @param topLeftStr      左上角文字
+     * @param topRightStr     右上角文字
+     * @return Base64
      */
-    public static BufferedImage getBarCodeWithWords(String codeValue,
-                                                    String bottomStr,
-                                                    String topLeftStr,
-                                                    String topRightStr) {
-        return getCodeWithWords(getBarCodeImage(codeValue),
+    public static String getBarCodeWordsBase64(String codeValue,
+                                               String bottomStr,
+                                               String topLeftStr,
+                                               String topRightStr) throws IOException {
+        return getBarCodeWordsBase64(
+                codeValue,
                 bottomStr,
                 topLeftStr,
                 topRightStr,
                 DEFAULT_PICTURE_WIDTH,
-                DEFAULT_PICTURE_HEIGHT,
+                DEFAULT_PICTURE_WIDTH,
                 0,
                 0,
+                10,
                 0,
-                0,
-                0,
+                -10,
                 0,
                 DEFAULT_FONT_SIZE);
     }
 
     /**
-     * 获取条形码
+     * 生成带文本内容 Base64  条形码
      *
-     * @param codeImage       条形码图片
+     * @param codeValue       条形码内容
+     * @param bottomStr       底部文字
+     * @param topLeftStr      左上角文字
+     * @param topRightStr     右上角文字
+     * @param pictureWidth    图片宽度
+     * @param pictureHeight   图片高度
+     * @param codeOffsetX     条形码宽度
+     * @param codeOffsetY     条形码高度
+     * @param topLeftOffsetX  左上角文字X轴偏移量
+     * @param topLeftOffsetY  左上角文字Y轴偏移量
+     * @param topRightOffsetX 右上角文字X轴偏移量
+     * @param topRightOffsetY 右上角文字Y轴偏移量
+     * @param fontSize        字体大小
+     * @return Base64
+     */
+    public static String getBarCodeWordsBase64(String codeValue,
+                                       String bottomStr,
+                                       String topLeftStr,
+                                       String topRightStr,
+                                       int pictureWidth,
+                                       int pictureHeight,
+                                       int codeOffsetX,
+                                       int codeOffsetY,
+                                       int topLeftOffsetX,
+                                       int topLeftOffsetY,
+                                       int topRightOffsetX,
+                                       int topRightOffsetY,
+                                       int fontSize) throws IOException {
+        BufferedImage bufferedImage = getBarCodeWords(codeValue, bottomStr, topLeftStr, topRightStr, pictureWidth, pictureHeight, codeOffsetX, codeOffsetY, topLeftOffsetX, topLeftOffsetY, topRightOffsetX, topRightOffsetY, fontSize);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(bufferedImage, FORMAT, baos);
+
+        return Base64.getEncoder().encodeToString(baos.toByteArray());
+    }
+
+
+    /**
+     * 生成带文本内容条形码
+     *
+     * @param codeValue       条形码内容
+     * @param bottomStr       底部文字
+     * @param imgPath         保存图片地址
+     */
+    public static void getBarCodeWords(String codeValue, String bottomStr, String imgPath) throws IOException {
+        getBarCodeWords(codeValue, bottomStr, "", "", imgPath);
+    }
+
+    /**
+     * 生成带文本内容条形码
+     *
+     * @param codeValue       条形码内容
+     * @param bottomStr       底部文字
+     * @param topLeftStr      左上角文字
+     * @param topRightStr     右上角文字
+     * @param imgPath         保存图片地址
+     */
+    public static void getBarCodeWords(String codeValue,
+                                        String bottomStr,
+                                        String topLeftStr,
+                                        String topRightStr,
+                                        String imgPath) throws IOException {
+        getBarCodeWords(
+                codeValue,
+                bottomStr,
+                topLeftStr,
+                topRightStr,
+                DEFAULT_PICTURE_WIDTH,
+                DEFAULT_PICTURE_WIDTH,
+                0,
+                0,
+                10,
+                0,
+                -10,
+                0,
+                DEFAULT_FONT_SIZE,
+                imgPath);
+    }
+
+    /**
+     * 生成带文本内容条形码
+     *
+     * @param codeValue       条形码内容
+     * @param bottomStr       底部文字
+     * @param topLeftStr      左上角文字
+     * @param topRightStr     右上角文字
+     * @param pictureWidth    图片宽度
+     * @param pictureHeight   图片高度
+     * @param codeOffsetX     条形码宽度
+     * @param codeOffsetY     条形码高度
+     * @param topLeftOffsetX  左上角文字X轴偏移量
+     * @param topLeftOffsetY  左上角文字Y轴偏移量
+     * @param topRightOffsetX 右上角文字X轴偏移量
+     * @param topRightOffsetY 右上角文字Y轴偏移量
+     * @param fontSize        字体大小
+     * @param imgPath         保存图片地址
+     */
+    public static void getBarCodeWords(String codeValue,
+                                        String bottomStr,
+                                        String topLeftStr,
+                                        String topRightStr,
+                                        int pictureWidth,
+                                        int pictureHeight,
+                                        int codeOffsetX,
+                                        int codeOffsetY,
+                                        int topLeftOffsetX,
+                                        int topLeftOffsetY,
+                                        int topRightOffsetX,
+                                        int topRightOffsetY,
+                                        int fontSize,
+                                        String imgPath) throws IOException {
+        BufferedImage bufferedImage = getBarCodeWords(codeValue, bottomStr, topLeftStr, topRightStr, pictureWidth, pictureHeight, codeOffsetX, codeOffsetY, topLeftOffsetX, topLeftOffsetY, topRightOffsetX, topRightOffsetY, fontSize);
+
+        File saveFile = new File(imgPath);
+
+        // 是否有父级目录没有则创建
+        if(!saveFile.getParentFile().exists()){
+            saveFile.getParentFile().mkdirs();
+        }
+
+        ImageIO.write(bufferedImage, FORMAT, saveFile);
+    }
+
+    /**
+     * 生成带文本内容条形码
+     *
+     * @param codeValue       条形码内容
      * @param bottomStr       底部文字
      * @param topLeftStr      左上角文字
      * @param topRightStr     右上角文字
@@ -168,7 +347,7 @@ public class BarCodeUtils {
      * @param fontSize        字体大小
      * @return 条形码图片
      */
-    public static BufferedImage getCodeWithWords(BufferedImage codeImage,
+    private static BufferedImage getBarCodeWords(String codeValue,
                                                  String bottomStr,
                                                  String topLeftStr,
                                                  String topRightStr,
@@ -181,6 +360,7 @@ public class BarCodeUtils {
                                                  int topRightOffsetX,
                                                  int topRightOffsetY,
                                                  int fontSize) {
+        BufferedImage codeImage = getBarCode(codeValue);
         BufferedImage picImage = new BufferedImage(pictureWidth, pictureHeight, BufferedImage.TYPE_INT_RGB);
 
         Graphics2D g2d = picImage.createGraphics();
