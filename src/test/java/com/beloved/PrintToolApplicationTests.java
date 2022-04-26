@@ -1,7 +1,12 @@
 package com.beloved;
 
+import cn.afterturn.easypoi.entity.ImageEntity;
 import com.beloved.utils.BarCodeUtils;
 import com.beloved.utils.QRCodeUtil;
+import com.beloved.utils.WordUtil2;
+import com.documents4j.api.DocumentType;
+import com.documents4j.api.IConverter;
+import com.documents4j.job.LocalConverter;
 import com.google.zxing.NotFoundException;
 import com.google.zxing.WriterException;
 import com.itextpdf.forms.PdfAcroForm;
@@ -13,6 +18,17 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.parser.PdfDocumentContentParser;
+import com.itextpdf.kernel.pdf.canvas.parser.listener.TextMarginFinder;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.layout.LayoutArea;
+import com.itextpdf.layout.layout.LayoutResult;
+import com.itextpdf.layout.properties.HorizontalAlignment;
+import com.itextpdf.layout.properties.UnitValue;
+import com.itextpdf.layout.renderer.DocumentRenderer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -20,8 +36,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,13 +47,61 @@ import java.util.Map;
 class PrintToolApplicationTests {
 
     @Test
+    void wordToPdf() {
+        File inputWord = new File("E:\\downloads\\pdf临时文件\\1650989184997.docx");
+        File outputFile = new File("E:\\downloads\\pdf临时文件\\toPdf.pdf");
+        try  {
+            InputStream docxInputStream = new FileInputStream(inputWord);
+            OutputStream outputStream = new FileOutputStream(outputFile);
+            IConverter converter = LocalConverter.builder().build();
+            converter.convert(docxInputStream).as(DocumentType.DOCX).to(outputStream).as(DocumentType.PDF).execute();
+            outputStream.close();
+            System.out.println("success");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void testWord() throws IOException {
+        HashMap<String, Object> parms = new HashMap<>();
+        parms.put("userName", "张三");
+        parms.put("age", 20);
+        ImageEntity imageEntity = new ImageEntity("E:\\downloads\\pdf临时文件\\1650984331740.jpg", 200, 200);
+        parms.put("image", imageEntity);
+
+        ArrayList<Object> list = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("index", i+1);
+            map.put("userName", "张三"+(i+1));
+            map.put("age", 20+i);
+//            map.put("image", imageEntity);
+            list.add(map);
+        }
+        parms.put("list", list);
+
+        ArrayList<Object> list2 = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("title", i+1);
+            map.put("aaa", "张三"+(i+1));
+            list.add(map);
+        }
+//        parms.put("list2", list2);
+
+
+        WordUtil2.exportWord("C:\\Users\\张恒\\Desktop\\测试模板.docx", "E:\\downloads\\pdf临时文件", System.currentTimeMillis()+".docx", parms);
+    }
+
+    @Test
     void test01() throws IOException, WriterException, NotFoundException {
-//        QRCodeUtil.getQRCode("https://www.bilibili.com/", "D:\\download\\pdf临时文件1\\" + System.currentTimeMillis() + ".jpg");
+        QRCodeUtil.getQRCode("https://www.bilibili.com/", "E:\\downloads\\pdf临时文件\\" + System.currentTimeMillis() + ".jpg");
 //        System.out.println(QRCodeUtil.decodeQRCode("D:\\download\\pdf临时文件\\1650940735922.jpg"));
 //        System.out.println(QRCodeUtil.getQRCodeBase64("https://www.bilibili.com/"));
 
 //        BarCodeUtils.getBarCode("rewqrwqerwerq", "D:\\download\\pdf临时文件1\\" + System.currentTimeMillis() + ".jpg");
-        BarCodeUtils.getBarCodeWords("TTT123456789", "TTT123456789", "D:\\download\\pdf临时文件1\\" + System.currentTimeMillis() + ".jpg");
+//        BarCodeUtils.getBarCodeWords("TTT123456789", "TTT123456789", "D:\\download\\pdf临时文件1\\" + System.currentTimeMillis() + ".jpg");
 //        BarCodeUtils.getBarCodeWords("张三",
 //                "张三",
 //                "坐上",
@@ -51,7 +115,7 @@ class PrintToolApplicationTests {
 
     @Test
     void contextLoads() throws IOException, WriterException {
-        String targetPdfPath = "D:\\download\\pdf临时文件\\" + System.currentTimeMillis() + ".pdf";
+        String targetPdfPath = "E:\\downloads\\pdf临时文件\\" + System.currentTimeMillis() + ".pdf";
         Map<String, Object> params = new HashMap<>();
         params.put("userName", "张三三三三三三三三三三三三三三三三三李四李四李四李四李四王五王五");
         params.put("age", 22);
@@ -86,6 +150,9 @@ class PrintToolApplicationTests {
         for (String key : params.keySet()) {
             Object value = params.get(key);
             PdfFormField formField = fieldMap.get(key);
+
+            System.out.println(formField.getParent());
+
             if (ObjectUtils.isEmpty(formField) || ObjectUtils.isEmpty(value)) {
                 continue;
             }
@@ -130,6 +197,22 @@ class PrintToolApplicationTests {
         // 设置文本不可编辑
         form.flattenFields();
 
+        Document doc = new Document(pdf);
+
+        Table table = new Table(10).setWidth(UnitValue.createPercentValue(50));
+
+        for (int i = 0; i < 10; i++) {
+            table.addHeaderCell("TITLE"+i);
+        }
+
+        for (int i = 0; i < 1000; i++) {
+            table.addCell("张三"+i);
+            if (i % 5 == 0) {
+                table.startNewRow();
+            }
+        }
+        doc.add(table.setHorizontalAlignment(HorizontalAlignment.CENTER));
+        doc.close();
         pdf.close();
     }
 
