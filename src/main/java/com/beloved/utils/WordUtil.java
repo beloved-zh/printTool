@@ -51,13 +51,45 @@ public class WordUtil {
     }
 
     /**
-     * 填充 word 模板返回输出流
+     * 填充 word 模板 转换成 pdf 输出流
      * @param templatePath
      * @param params
      * @return
      * @throws Exception
      */
-    public static InputStream templateFillInputByteStream(String templatePath, Map<String, Object> params) throws Exception {
+    public static ByteArrayOutputStream templateFillToPdfOutputByteStream(String templatePath, Map<String, Object> params) throws Exception {
+
+        ByteArrayOutputStream os = null;
+        ByteArrayInputStream is = null;
+
+        try {
+            is = templateFillInputByteStream(templatePath, params);
+
+            os = wordToPdfOutputByteStream(is);
+
+            return os;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (os != null) {
+                os.close();
+            }
+            if (is != null) {
+                is.close();
+            }
+        }
+    }
+
+
+    /**
+     * 填充 word 模板返回输入流
+     * @param templatePath
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    public static ByteArrayInputStream templateFillInputByteStream(String templatePath, Map<String, Object> params) throws Exception {
 
         ByteArrayOutputStream os = null;
         ByteArrayInputStream is = null;
@@ -131,11 +163,12 @@ public class WordUtil {
         Assert.notNull(wordPath,"word模板文件路径不能为空");
         Assert.isTrue(pdfPath.endsWith(".pdf"), "只能转换为pdf文件");
 
+        InputStream is = null;
         FileOutputStream os = null;
 
         try {
             // 获取凭证，校验凭证
-            InputStream is = new ClassPathResource("/license.xml").getInputStream();
+            is = new ClassPathResource("/license.xml").getInputStream();
             new License().setLicense(is);
 
             File pdf = new File(pdfPath);
@@ -158,6 +191,9 @@ public class WordUtil {
             e.printStackTrace();
             throw e;
         } finally {
+            if (is != null) {
+                is.close();
+            }
             if (os != null) {
                 os.close();
             }
@@ -172,12 +208,12 @@ public class WordUtil {
      */
     public static void wordToPdf(InputStream wordInputStream, String pdfPath) throws Exception {
         Assert.isTrue(pdfPath.endsWith(".pdf"), "只能转换为pdf文件");
-
+        InputStream is = null;
         FileOutputStream os = null;
 
         try {
             // 获取凭证，校验凭证
-            InputStream is = new ClassPathResource("/license.xml").getInputStream();
+            is = new ClassPathResource("/license.xml").getInputStream();
             new License().setLicense(is);
 
             File pdf = new File(pdfPath);
@@ -200,11 +236,52 @@ public class WordUtil {
             if (wordInputStream != null) {
                 wordInputStream.close();
             }
+            if (is != null) {
+                is.close();
+            }
             if (os != null) {
                 os.close();
             }
         }
 
+    }
+
+    /**
+     * word 转 pdf 输出流
+     * @param wordInputStream   word 文件输入流
+     * @throws Exception
+     */
+    public static ByteArrayOutputStream wordToPdfOutputByteStream(InputStream wordInputStream) throws Exception {
+        InputStream is = null;
+        ByteArrayOutputStream os = null;
+
+
+        try {
+            // 获取凭证，校验凭证
+            is = new ClassPathResource("/license.xml").getInputStream();
+            new License().setLicense(is);
+
+            os = new ByteArrayOutputStream();
+
+            // 要转换的word文件
+            Document word = new Document(wordInputStream);
+            word.save(os, SaveFormat.PDF);
+
+            return os;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        } finally {
+            if (wordInputStream != null) {
+                wordInputStream.close();
+            }
+            if (is != null) {
+                is.close();
+            }
+            if (os != null) {
+                os.close();
+            }
+        }
     }
 
 }
