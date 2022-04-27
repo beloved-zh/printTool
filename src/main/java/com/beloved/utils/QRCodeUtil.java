@@ -8,6 +8,7 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.Assert;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -36,6 +37,7 @@ public class QRCodeUtil {
      * @return          解析内容
      */
     public static String decodeQRCode(String imgPath) throws IOException, NotFoundException {
+        Assert.notNull(imgPath,"文件路径不能为空");
 
         BufferedImage image = ImageIO.read(new File(imgPath));
         LuminanceSource source = new BufferedImageLuminanceSource(image);
@@ -69,13 +71,36 @@ public class QRCodeUtil {
      * @throws WriterException
      */
     public static String getQRCodeBase64(String content, int width, int height) throws WriterException, IOException {
+        return Base64.getEncoder().encodeToString(getQRCodeByteArray(content, width, height));
+    }
+
+    /**
+     * 获取默认宽高二维码
+     * @param content 内容
+     * @return        byte[] 编码图片
+     * @throws WriterException
+     * @throws IOException
+     */
+    public static byte[] getQRCodeByteArray(String content) throws WriterException, IOException {
+        return getQRCodeByteArray(content, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
+
+    /**
+     * 获取二维码
+     * @param content 内容
+     * @param width   宽度
+     * @param height  高度
+     * @return        byte[] 编码图片
+     * @throws WriterException
+     */
+    public static byte[] getQRCodeByteArray(String content, int width, int height) throws WriterException, IOException {
 
         BufferedImage bufferedImage = getQRCode(content, width, height);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(bufferedImage, FORMAT, baos);
 
-        return Base64.getEncoder().encodeToString(baos.toByteArray());
+        return baos.toByteArray();
     }
 
     /**
