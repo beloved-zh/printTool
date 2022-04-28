@@ -1,30 +1,23 @@
 package com.beloved;
 
 import cn.afterturn.easypoi.entity.ImageEntity;
-import com.aspose.words.Document;
-import com.aspose.words.License;
-import com.aspose.words.SaveFormat;
 import com.beloved.enums.FontEnum;
 import com.beloved.utils.BarCodeUtil;
 import com.beloved.utils.PdfUtil;
 import com.beloved.utils.QRCodeUtil;
 import com.beloved.utils.WordUtil;
-import com.documents4j.api.DocumentType;
-import com.documents4j.api.IConverter;
-import com.documents4j.job.LocalConverter;
 import com.google.zxing.WriterException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.ClassPathResource;
 
-import java.io.*;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.SimpleFormatter;
 
 @Slf4j
 @SpringBootTest

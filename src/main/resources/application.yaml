@@ -1,6 +1,18 @@
 server:
   port: 8888
 
+spring:
+  # 服务模块
+  devtools:
+    restart:
+      # 热部署开关
+      enabled: true
+      additional-paths: src/main/java #重启目录
+      exclude: WEB-INF/**
+  #关闭 thymleaf 缓存
+  thymeleaf:
+    cache: false
+
 # 日志配置
 logging:
   level:

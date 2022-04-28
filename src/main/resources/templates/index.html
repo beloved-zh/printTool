@@ -1,10 +1,70 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Title</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" >
+    
+    <style type="text/css">
+        html,body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
-    1111111111
+    <div class="container">
+        <table class="table table-hover" style="text-align: center;">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">模板名称</th>
+                <th scope="col">操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="index : ${#numbers.sequence(1, 20)}">
+                <th scope="row">
+                    [[${index}]]
+                </th>
+                <td>
+                    测试打印模板[[${index}]]
+                </td>
+                <td>
+                    <button type="button" class="btn btn-outline-primary preview">预览</button>
+                    <button type="button" class="btn btn-outline-secondary print">打印</button>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
 </body>
+<object  id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
+    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
+</object>
+
+<script th:src="@{/js/jquery-3.6.0.js}"></script>
+<script th:src="@{/js/LodopFuncs.js}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(function () {
+        $('.preview').on('click', preview)
+        $('.print').on('click', print)
+    })
+    
+    function preview(event) {
+        window.open('/print')
+    }
+    
+    function print(event) {
+        console.log('打印')
+        var LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));
+    }
+</script>
 </html>

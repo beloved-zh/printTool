@@ -4,19 +4,15 @@ import cn.afterturn.easypoi.entity.ImageEntity;
 import com.beloved.utils.BarCodeUtil;
 import com.beloved.utils.QRCodeUtil;
 import com.beloved.utils.WordUtil;
-import com.google.errorprone.annotations.Var;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,11 +20,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
-@RestController
+@Controller
 public class Test {
 
     @GetMapping("/")
-    public void index(HttpServletResponse response) throws Exception {
+    public String index(Model model) {
+        return "index";
+    }
+    
+    @GetMapping("/print")
+    public void print(HttpServletResponse response) throws Exception {
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
