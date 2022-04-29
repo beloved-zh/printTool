@@ -70,7 +70,7 @@ class PrintToolApplicationTests {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         String templatePath = new ClassPathResource("templates/测试模板.docx").getPath();
-        String targetPath = "E:\\downloads\\pdf临时文件" + System.currentTimeMillis() + ".docx";
+        String targetPath = "D:\\download\\pdf临时文件\\" + System.currentTimeMillis() + ".docx";
         Map<String, Object> params = new HashMap<>();
         params.put("userName", "张三");
         params.put("age", 20);
@@ -102,7 +102,7 @@ class PrintToolApplicationTests {
     @Test
     void pdfTemplateFill() throws IOException, WriterException {
         String templatePath = new ClassPathResource("templates/测试模板.pdf").getPath();
-        String targetPath = "E:\\downloads\\pdf临时文件" + System.currentTimeMillis() + ".pdf";
+        String targetPath = "D:\\download\\pdf临时文件\\" + System.currentTimeMillis() + ".pdf";
         Map<String, Object> params = new HashMap<>();
         params.put("userName", "张三");
         params.put("age", 20);

@@ -64,13 +64,13 @@ if (needCLodop()) {
 
 //==获取LODOP对象主过程,判断是否安装、需否升级:==
 function getLodop(oOBJECT, oEMBED) {
-    var strLodopInstall = `<br><font color='#FF00FF'>打印控件未安装!点击这里<a href='${install_lodop32}' target='_self'>执行安装</a>，成功后请刷新本页面或重启浏览器。</font>`
-    var strLodop64Install = `<br><font color='#FF00FF'>打印控件未安装!点击这里<a href='${install_lodop64}' target='_self'>执行安装</a>，成功后请刷新本页面或重启浏览器。</font>`
-    var strLodopUpdate = `<br><font color='#FF00FF'>打印控件需要升级!点击这里<a href='${install_lodop32}' target='_self'>执行升级</a>，成功后请刷新本页面或重启浏览器。</font>`
-    var strLodop64Update = `<br><font color='#FF00FF'>打印控件需要升级!点击这里<a href='${install_lodop64}' target='_self'>执行升级</a>，成功后请刷新本页面或重启浏览器。</font>`
-    var strCLodopInstall = `<br><font color='#FF00FF'>Web打印服务CLodop未安装，点击这里<a href='${CLodop_Setup_for_Win32NT}' target='_self'>下载执行安装</a>，成功后请刷新本页面或重启浏览器。</font>`;
-    var strCLodopUpdate = `<br><font color='#FF00FF'>Web打印服务CLodop需要升级，点击这里<a href='${CLodop_Setup_for_Win32NT}' target='_self'>执行升级</a>，成功后请刷新本页面或重启浏览器。</font>`;
-    var strCLodopStart = `<br><font color='#FF00FF'>（若此前已安装过，可<a href='CLodop.protocol:setup' target='_self'>点这里直接再次启动</a>），成功后请刷新本页面或重启浏览器。</font>`;
+    var strLodopInstall = "<br><font color='#FF00FF'>打印控件未安装!点击这里<a href='" + install_lodop32 + "' target='_self'>执行安装</a>，成功后请刷新本页面或重启浏览器。</font>"
+    var strLodop64Install = "<br><font color='#FF00FF'>打印控件未安装!点击这里<a href='" + install_lodop64 + "' target='_self'>执行安装</a>，成功后请刷新本页面或重启浏览器。</font>"
+    var strLodopUpdate = "<br><font color='#FF00FF'>打印控件需要升级!点击这里<a href='" + install_lodop32 + "' target='_self'>执行升级</a>，成功后请刷新本页面或重启浏览器。</font>"
+    var strLodop64Update = "<br><font color='#FF00FF'>打印控件需要升级!点击这里<a href='" + install_lodop64 + "' target='_self'>执行升级</a>，成功后请刷新本页面或重启浏览器。</font>"
+    var strCLodopInstall = "<br><font color='#FF00FF'>Web打印服务CLodop未安装，点击这里<a href='" + CLodop_Setup_for_Win32NT + "' target='_self'>下载执行安装</a>，成功后请刷新本页面或重启浏览器。</font>"
+    var strCLodopUpdate = "<br><font color='#FF00FF'>Web打印服务CLodop需要升级，点击这里<a href='" + CLodop_Setup_for_Win32NT + "' target='_self'>执行升级</a>，成功后请刷新本页面或重启浏览器。</font>"
+    var strCLodopStart = "<br><font color='#FF00FF'>（若此前已安装过，可<a href='CLodop.protocol:setup' target='_self'>点这里直接再次启动</a>），成功后请刷新本页面或重启浏览器。</font>"
     
     var LODOP;
     try {
@@ -104,9 +104,12 @@ function getLodop(oOBJECT, oEMBED) {
                 return;
             } else {
                 if (LODOP.CVERSION < '4.1.5.8') {
-                    alert('Web打印服务CLodop需升级!点击进行升级')
+                    strAlertMessage = strCLodopUpdate
                 }
-                return;
+                if (strAlertMessage) {
+                    document.body.innerHTML = strAlertMessage + document.body.innerHTML;
+                    return;
+                }
             }
         } else {
             //==如果页面有Lodop插件就直接使用,否则新建:==
@@ -142,7 +145,7 @@ function getLodop(oOBJECT, oEMBED) {
             }
         }
         //===如下空白位置适合调用统一功能(如注册语句、语言选择等):=======================
-
+        LODOP.SET_LICENSES('xxxxx公司', '4AA5CA8E56EDABDCD8F007D7B4FB9152922', '', '')
 
         //===============================================================================
         return LODOP;

@@ -20,34 +20,34 @@
 </head>
 <body>
     <div class="container">
-        <table class="table table-hover" style="text-align: center;">
-            <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">模板名称</th>
-                <th scope="col">操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="index : ${#numbers.sequence(1, 20)}">
-                <th scope="row">
-                    [[${index}]]
-                </th>
-                <td>
-                    测试打印模板[[${index}]]
-                </td>
-                <td>
-                    <button type="button" class="btn btn-outline-primary preview">预览</button>
-                    <button type="button" class="btn btn-outline-secondary print">打印</button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <button type="button" class="btn btn-outline-primary" id="printDomBut">打印DOM元素</button>
+        <div id="printTab">
+            <table class="table table-hover" style="text-align: center;">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">模板名称</th>
+                    <th scope="col">操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="index : ${#numbers.sequence(1, 20)}">
+                    <th scope="row">
+                        [[${index}]]
+                    </th>
+                    <td>
+                        测试打印模板[[${index}]]
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-primary preview">预览</button>
+                        <button type="button" class="btn btn-outline-secondary print">打印</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </body>
-<object  id="LODOP_OB" classid="clsid:2105C259-1E0C-4534-8141-A753534CB4CA" width=0 height=0>
-    <embed id="LODOP_EM" type="application/x-print-lodop" width=0 height=0></embed>
-</object>
 
 <script th:src="@{/js/jquery-3.6.0.js}"></script>
 <script th:src="@{/js/LodopFuncs.js}"></script>
@@ -56,15 +56,46 @@
     $(function () {
         $('.preview').on('click', preview)
         $('.print').on('click', print)
+        $('#printDomBut').on('click', printDom)
     })
     
     function preview(event) {
         window.open('/print')
     }
     
+    function getPdf() {
+        $.ajax({
+            type: 'POST',
+            url: '/print',
+            //请求的媒体类型
+            contentType: "application/pdf",
+            data: {
+                
+            },
+            success (res) {
+                console.log(res)
+            }
+        })
+    }
+    
+    function printDom() {
+        var printTab = $("#printTab");
+        console.log(printTab.html())
+        let LODOP = getLodop()
+        LODOP.PRINT_INIT('')
+        LODOP.ADD_PRINT_HTM(0,0,0,0, printTab.html())
+        LODOP.SET_PRINT_MODE('PRINT_PAGE_PERCENT', 'Full-Width')
+        LODOP.PRINT()
+    }
+    
     function print(event) {
         console.log('打印')
-        var LODOP=getLodop(document.getElementById('LODOP_OB'),document.getElementById('LODOP_EM'));
+        var LODOP = getLodop();
+        console.log(LODOP)
+
+        LODOP.PRINT_INIT('print')
+        LODOP.ADD_PRINT_PDF(0,0,"100%","100%",'http://localhost:8888/print')
+        LODOP.PREVIEW();
     }
 </script>
 </html>
